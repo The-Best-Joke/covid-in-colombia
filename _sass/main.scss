@@ -1,0 +1,63 @@
+body {
+  font-family: Arial;
+  background-color: #fdfcfa;
+}
+
+.line {
+  stroke-width: 1.5px;
+  fill: none;
+}
+
+.nation-line {
+  fill: none;
+}
+
+.grid line {
+  stroke: darkgrey;
+  stroke-opacity: 0.3;
+  shape-rendering: crispEdges;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  shape-rendering: crispEdges;
+}
+    
+.x.axis path {
+  display: none;
+}
+
+.label-text {
+  stroke: white;
+  stroke-width: 1.5;
+  paint-order: stroke fill;
+}
+
+.tick text {
+  fill: darkgrey;
+}
+
+.focus-text {
+  opacity: 0;
+  text-anchor: left;
+  alignment-baseline: middle;
+  fill: black;
+  stroke: white;
+  stroke-width: 2;
+  paint-order: stroke fill;
+}
+
+.x-axis-label {
+  font-size: 0.7em;
+  fill: darkgrey;
+}
+
+
+.cpd-legend-text {
+  font-size: 0.7em; 
+}

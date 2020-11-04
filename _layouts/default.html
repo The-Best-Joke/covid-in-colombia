@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/styles.css">
+  </head>
+  <body>
+    <!-- load the d3.js library -->     
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script>
+        // set the dimensions and margins of the graph
+        var margin = {top: 50, right: 100, bottom: 30, left: 80},
+            width = 600 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom;
+    </script> 
+    <script type="text/javascript" src="{{ site.baseurl }}/assets/js/graph-utils.js"></script>
+    {{ content }}
+  </body>
+</html>
