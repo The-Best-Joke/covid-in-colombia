@@ -7,12 +7,8 @@ var svgCities = d3.select("#colombia-cities-graph")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
-var casesOrDeaths = "cases";
-var perDayOrTotal = "per_day";
-var city = "bogota";
-
 // Read the data
-d3.csv("data/cities/" + casesOrDeaths + "/" + perDayOrTotal + "/" + city + ".csv",
+d3.csv("data/cities/cases/total/bogota.csv",
 
   // When reading the csv, I must format variables:
   (d) => {
@@ -24,6 +20,38 @@ d3.csv("data/cities/" + casesOrDeaths + "/" + perDayOrTotal + "/" + city + ".csv
 
     console.log(data);
 
+    // What happens when the mouse move -> show the annotations at the right positions.
+    function mouseover() {
+      focus.style("opacity", 1);
+      focusCases.style("opacity", 1);
+      focusDate.style("opacity", 1);
+    }
+
+    function mousemove() {
+      // recover coordinate we need
+      var x0 = x.invert(d3.mouse(this)[0]);
+      var i = bisect(data, x0, 1);
+      selectedData = data[i];
+      selectedMonth = selectedData.date.getMonth() + 1;
+      focus
+        .attr("cx", x(selectedData.date))
+        .attr("cy", y(selectedData.cases));
+      focusCases
+        .attr("x", x(selectedData.date) - 25)
+        .attr("y", y(selectedData.cases) - 15)
+        .html("Cases: " + formatNum(selectedData.cases));
+      focusDate
+        .attr("x", x(selectedData.date) - 25)
+        .attr("y", y(selectedData.cases) - 30)
+        .html("Date: " + selectedData.date.getDate() + "/" + selectedMonth + "/" + selectedData.date.getFullYear());
+        } 
+
+    function mouseout() {
+      focus.style("opacity", 0);
+      focusCases.style("opacity", 0);
+      focusDate.style("opacity", 0);
+    }
+
     function formatDate(d) {
       date = d.getDate();
       month = d.getMonth() + 1;
@@ -32,17 +60,17 @@ d3.csv("data/cities/" + casesOrDeaths + "/" + perDayOrTotal + "/" + city + ".csv
     }
 
     // Add X axis --> it is a date format
-    var x = d3.scaleBand()
-      .domain(data.map((d) => d.date ))
-      .range([ 0, width ])
-      .padding(0);
+    var x = d3.scaleTime()
+      .domain(d3.extent(data, (d) => d.date ))
+      .range([ 0, width ]);
 
     svgCities.append("g")
       .attr("class", "grid")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x)
-      .tickFormat("")
-      .tickSize(0));
+        .tickFormat((d) => formatDate(d))
+        .ticks(3));
+
 
     // Add Y axis
     var y = d3.scaleLinear()
@@ -52,69 +80,53 @@ d3.csv("data/cities/" + casesOrDeaths + "/" + perDayOrTotal + "/" + city + ".csv
     svgCities.append("g")
       .attr("class", "grid")
       .call(d3.axisLeft(y)
-      .tickSize(-width)
-      .tickFormat((d) => formatNum(d))
-      .ticks(3));
+        .tickSize(-width)
+        .tickFormat((d) => formatNum(d))
+        .ticks(2));
 
-    // text label for the x axis
-    svgCities.append("text")             
-      .attr("transform", "translate(" + (width / 2) + "," + (height + 20) + ")")
-      .style("text-anchor", "middle")
-      .attr("class" , "x-axis-label")
-      .text("Date →");
+    // Add the line
+    svgCities.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 2)
+      .attr("stroke-linecap", "round")
+      .attr("stroke-linejoin","round")
+      .attr("d", d3.line()
+        .x( (d) => x(d.date) )
+        .y( (d) => y(d.cases) )
+        );
 
-    // Add the bars
-    svgCities.append("g")
-      .attr("fill", "steelblue")
-      .selectAll("rect")
-      .data(data)
-      .enter()
-        .append("rect")
-        .attr("class" , "city-cpd-bar")
-        .attr("x", (d) => x(d.date))
-        .attr("y", (d) => y(d.cases))
-        .attr("height", (d) => y(0) - y(d.cases))
-        .attr("width", x.bandwidth());
+    // This allows to find the closest X index of the mouse:
+    var bisect = d3.bisector( (d) => d.date ).left;
 
-    svgCities.selectAll(".city-cpd-bar")
-      .on("mouseover", function (d) {
-        d3.select(this).attr("opacity", 0.5);
-        d3.select("#city-cpd-legend-text-cases")
-          .text("Cases: " + formatNum(d.cases));
-        d3.select("#city-cpd-legend-text-date")
-          .text("Date: " + formatDate(d.date));
-      });
+    // Create the circle that travels along the curve of chart
+    var focus = svgCities
+      .append("circle")
+        .style("fill", "none")
+        .attr("stroke", "black")
+        .attr("r", 5.5)
+        .style("opacity", 0);
 
-    svgCities.selectAll(".city-cpd-bar")
-      .on("mouseout", function () { 
-        d3.select(this).attr("opacity", 1);
-        d3.select("#city-cpd-legend-text-cases")
-          .text("Cases:");
-        d3.select("#city-cpd-legend-text-date")
-          .text("Date:");
-      });
+    // Create the text that travels along the curve of chart
+    var focusCases = svgCities
+      .append("text")
+        .attr("class", "focus-text");
 
-    svgCities.append("rect")
-      .attr("x", 65)
-      .attr("y", 165)
-      .attr("height", 45)
-      .attr("width", 90)
-      .attr("id", "city-cpd-legend")
-      .style("opacity", 1)
-      .style("fill", "#F5F5F5");
+    // Create the text that travels along the curve of chart
+    var focusDate = svgCities
+      .append("text")
+        .attr("class", "focus-text");
 
-    svgCities.append("text")
-      .attr("x", 75)
-      .attr("y", 182)
-      .attr("class", "city-cpd-legend-text")
-      .attr("id", "city-cpd-legend-text-cases")
-      .text("Cases: ");
-
-    svgCities.append("text")
-      .attr("x", 76)
-      .attr("y", 198)
-      .attr("class", "city-cpd-legend-text")
-      .attr("id", "city-cpd-legend-text-date")
-      .text("Date: ");
+    // Create a rect on top of the svg area: this rectangle recovers mouse position
+    svgCities
+      .append('rect')
+      .style("fill", "none")
+      .style("pointer-events", "all")
+      .attr('width', width)
+      .attr('height', height)
+      .on('mouseover', mouseover)
+      .on('mousemove', mousemove)
+      .on('mouseout', mouseout);
   }
 );
