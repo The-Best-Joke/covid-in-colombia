@@ -24,10 +24,6 @@ d3.csv("data/cities/" + casesOrDeaths + "/" + perDayOrTotal + "/" + city + ".csv
 
     console.log(data);
 
-    for (let date in data.cases) {
-      console.log(date);
-    }
-
     function formatDate(d) {
       date = d.getDate();
       month = d.getMonth() + 1;
@@ -75,9 +71,9 @@ d3.csv("data/cities/" + casesOrDeaths + "/" + perDayOrTotal + "/" + city + ".csv
       .enter()
         .append("rect")
         .attr("class" , "city-cpd-bar")
-        .attr("x", d => x(d.date))
-        .attr("y", d => y(d.cases))
-        .attr("height", d => y(0) - y(d.cases))
+        .attr("x", (d) => x(d.date))
+        .attr("y", (d) => y(d.cases))
+        .attr("height", (d) => y(0) - y(d.cases))
         .attr("width", x.bandwidth());
 
     svgCities.selectAll(".city-cpd-bar")

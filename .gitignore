@@ -3,11 +3,6 @@ _site/
 .jekyll-cache/
 .jekyll-metadata
 .DS_Store
-data/.DS_Store
-cities/.DS_Store
-cities/cases/.DS_Store
-cities/deaths/.DS_Store
-cities/cases/per_day/.DS_Store
-cities/cases/total/.DS_Store
-cities/deaths/per_day/.DS_Store
-cities/deaths/total/.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
